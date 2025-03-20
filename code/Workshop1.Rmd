@@ -441,7 +441,7 @@ glimpse(data)
 ```{r}
 ggplot(data, aes(x = Year, y = MLD)) + 
   geom_ribbon(aes(ymin = Lower_CI, ymax = Upper_CI), fill = "gray", alpha = 0.3) +  # Proper confidence interval
- #geom_line(color = "black", size = 1) +  # Main trend line
+ geom_line(color = "black", size = 1) +  # Main trend line
   geom_point(color = "black", size = 2) +  # Data points
   labs(title = "Improved Visualization of MLD Over Time with Confidence Interval",
        x = "Year",
@@ -456,12 +456,54 @@ ggplot(data, aes(x = Year, y = MLD)) +
 ```
 
 
+# WORKSHOP 2- Using ggplot2 for communication#
 
 
+# Adding labels
+```{r}
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(color = class)) +
+  geom_smooth(se.e = FALSE) +
+  labs(title = "Fuel efficiency generally decreases with engine size")
+```
+
+# 'subtitle' adds additional detail in a smaller font beneath the title and caption adds text at the bottom right of the plot 
+# 'caption' adds text at the bottom right of the plot, often used to describe the source of the data.
 
 
+```{r}
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(color = class)) +
+  geom_smooth(se = FALSE) +
+  labs(
+    title = "Fuel efficiency generally decreases with engine size",
+    subtitle = "Two seaters (sports cars) are an exception because of their light weight",
+    caption = "Data from fueleconomy.gov"
+  )
+```
 
+# Use labs() to replace axis labels and legend titles.
 
+```{r}
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(colour = class)) +
+  geom_smooth(se = FALSE) +
+  labs(
+    x = "Engine displacement (L)",
+    y = "Highway fuel economy (mpg)",
+    colour = "Car type"
+  )
+```
+# Annotations
+# Can use geom_text() to add text directly into plot to add emphasis
+# Using filter to pull data values out from the data itself and include in the plot
+```{r}
+best_in_class <- mpg %>%
+  group_by(class) %>%
+  filter(row_number(desc(hwy)) == 1)
 
-
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(colour = class)) +
+  geom_text(aes(label = model), data = best_in_class)
+```
 
