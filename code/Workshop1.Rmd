@@ -454,7 +454,7 @@ ggplot(data, aes(x = Year, y = MLD)) +
   )
 
 ```
-
+# *^ Here we believe there was a mistake with the digitizer that collect the data from the graph we calibrated. 
 
 # WORKSHOP 2- Using ggplot2 for communication#
 
@@ -498,6 +498,7 @@ ggplot(mpg, aes(displ, hwy)) +
 # Can use geom_text() to add text directly into plot to add emphasis
 # Using filter to pull data values out from the data itself and include in the plot
 ```{r}
+#library(dplyr)
 best_in_class <- mpg %>%
   group_by(class) %>%
   filter(row_number(desc(hwy)) == 1)
@@ -506,4 +507,110 @@ ggplot(mpg, aes(displ, hwy)) +
   geom_point(aes(colour = class)) +
   geom_text(aes(label = model), data = best_in_class)
 ```
+# Scales
+
+```{r}
+ggplot(mpg, aes(displ, hwy)) + # ggplot2 automatically adds scales for you
+  geom_point(aes(colour = class))
+```
+
+```{r}
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(colour = class)) +
+  scale_x_continuouos() +
+  scale_y_continuouss() +
+  scale_colour_discrete()
+```
+
+```{r}
+# Create the plot with fixed scale functions and axis limits
+# scale_continuous allows you to manual adjust scale, ggplot2 normally would do this automatically
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(colour = class)) +
+  scale_x_continuous(limits = c(1, 7)) +  # Set x-axis range 
+  scale_y_continuous(limits = c(10, 45)) +  # Set y-axis range 
+  scale_colour_discrete()
+```
+# 3.4 Axis Ticks
+# breaks controls the position of the ticks
+
+```{r}
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point() +
+  scale_y_continuous(breaks = seq(15, 40, by = 5))
+```
+# use NULL to suppress labels, sometimes needed for patocular formats
+```{r}
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point() +
+  scale_x_continuous(labels = NULL) +
+  scale_y_continuous(labels = NULL)
+```
+# 3.5 Legends and colour schemes
+# Can use theme() to change the position of your legend, perhaps to make the plot itself as wide as possible (e.g. put the legend underneath) or to hide it all together
+# can also use legend.position = "none" to suppress the display of the legend altogether
+# Each line was run seperatly and then all together to show differences
+
+```{r}
+base <- ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(colour = class))
+
+base + theme(legend.position = "left")
+base + theme(legend.position = "top")
+base + theme(legend.position = "bottom")
+base + theme(legend.position = "right") # the default
+```
+# 3.6 Replacing a scale
+# Continuous position scales and colour scales are the most likely to be switched out
+
+```{r}
+ggplot(diamonds, aes(carat, price)) +
+  geom_bin2d() + 
+  scale_x_log10() + 
+  scale_y_log10()
+```
+# Changing colour scale
+
+```{r}
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(color = drv))
+
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(color = drv)) +
+  scale_colour_brewer(palette = "Set1")
+```
+# Adding redundant shape mapping
+
+```{r}
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(color = drv, shape = drv)) +
+  scale_colour_brewer(palette = "Set1")
+```
+# ColorBrewer scales are documented here http://colorbrewer2.org/
+# Setting preferred colors with scale_colour_manual()
+
+```{r}
+presidential %>%
+  mutate(id = 33 + row_number()) %>%
+  ggplot(aes(start, id, colour = party)) +
+    geom_point() +
+    geom_segment(aes(xend = end, yend = id)) +
+    scale_colour_manual(values = c(Republican = "red", Democratic = "blue"))
+```
+# Viridis colour scheme is one of the most popular
+
+install.packages('viridis')
+install.packages('hexbin')
+library(viridis)
+library(hexbin)
+
+
+
+
+
+
+
+
+
+
 
