@@ -498,7 +498,7 @@ ggplot(mpg, aes(displ, hwy)) +
 # Can use geom_text() to add text directly into plot to add emphasis
 # Using filter to pull data values out from the data itself and include in the plot
 ```{r}
-#library(dplyr)
+library(dplyr)
 best_in_class <- mpg %>%
   group_by(class) %>%
   filter(row_number(desc(hwy)) == 1)
@@ -676,6 +676,14 @@ ggsave("my-plot.pdf")
 ```
 
 # To adjust dimensions of plot, use width and the length arguments to funciton this
+
+
+# 09/04/2025
+
+# 3.10 Assignment: End-to-end data analysis in R
+# QFISH
+
+# "How does the number of issued licenses affect the total tonnage produced over the years?"
 
 
 
