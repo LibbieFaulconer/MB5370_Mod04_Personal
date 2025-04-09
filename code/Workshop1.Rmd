@@ -685,7 +685,11 @@ ggsave("my-plot.pdf")
 
 # "How does the number of issued licenses affect the total tonnage produced over the years?"
 
+library(tidyverse)
 
+```{r}
+data <- read_csv("data/QFISH_data.csv")
+```
 
 
 
