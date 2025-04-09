@@ -1,0 +1,456 @@
+---
+title: "Workshop3.Rmd"
+author: "Libbie"
+date: "2025-04-09"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+QFISH ASSIGNMENT
+
+# 3.10 Assignment: End-to-end data analysis in R
+# QFISH
+
+# "How does the number of issued licenses affect the total tonnage produced over the years?"
+
+library(tidyverse)
+
+```{r}
+data <- read_csv("C:\\Users\\User\\Desktop\\github\\MB5370_Mod04_Personal\\data\\QFISH_data.csv")
+```
+```{r}
+# Prepare the data
+data$Tonnes <- as.numeric(gsub(",", "", data$Tonnes))  # Ensure Tonnes is numeric, remove any commas
+data$Licences <- as.integer(data$Licences)  # Ensure Licences is integer
+
+# Define threshold to identify and remove outliers
+outlier_threshold <- 200000  # Example threshold
+data <- data[data$Tonnes <= outlier_threshold, ]
+
+# Generate the plot without the outlier and with a legend on the right
+plot <- ggplot(data, aes(x = Licences, y = Tonnes)) +
+  geom_jitter(aes(color = "Data Points"), alpha = 0.6, size = 2, width = 10, height = 0) +  # Adding jitter to reduce overlap
+  geom_smooth(aes(color = "Trend Line"), method = "gam", se = FALSE) +  # Add a linear trend line without confidence interval
+  scale_y_log10() +  # Applying log transformation to y-axis to handle large range
+  scale_color_manual(values = c("Data Points" = "blue", "Trend Line" = "red")) +  # Define custom colors for the legend
+  labs(title = "Relationship Between Number of Licenses and Total Tonnes Produced",
+       x = "Number of Licenses",
+       y = "Total Tonnes (Log Scale)",
+       color = "Legend Elements") +  # Adding legend title
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5),  # Center the plot title
+        plot.subtitle = element_text(hjust = 0.5),  # Center the subtitle
+        legend.position = "right")  # Position the legend on the right
+
+# Display the plot
+print(plot)
+
+# Save the plot to a file
+ggsave("scatter_plot_with_legend_right.pdf", plot = plot, width = 10, height = 6, dpi = 300)
+
+
+```
+
+# PLOT ANALYSIS
+
+# The scatter plot reveals a positive correlation between the number of licenses issued (Licences) and the total tonnage produced (Tonnes), indicating that generally, as the number of licenses increases, so does the tonnage produced. However, the significant variability among data points suggests that other factors besides the number of licenses influence the tonnage. This variability could reflect differences in fishing efficiency, technology, regulatory changes, or environmental conditions.
+
+# Notably, most data points are clustered at lower license counts, suggesting a concentration of operations within this range possibly due to regulatory or economic constraints. At higher license counts, the data points spread out, indicating that fewer operators reach this scale, and those who do may not consistently achieve higher yields. This spread could be partially due to the ecological limits such as overfishing, where increased effort does not correspond to proportionate increases in yield due to depleted fish stocks.
+
+# The presence of outliers—particularly at higher license numbers with unusually high tonnage—suggests exceptional cases that could skew overall analysis. These outliers may represent instances of extremely efficient operations or reporting errors and should be investigated to ensure they do not mislead policy recommendations or economic analysis.
+
+# This analysis underscores the need for careful management of fishing licenses and monitoring of fishing practices to ensure sustainability, particularly in light of signs that overfishing may be affecting overall productivity. Further research should also explore the specific conditions and practices under these licenses to better understand the impacts on fish populations and marine ecosystems.
+
+
+
+
+
+
+# Workshop 3 - Data wrangling in R
+
+#4.3 Tidying data using Tidyr
+
+# What are tibbles? They are slightly adjusted dataframes which were designed to keep up with recent advances in R.
+
+# How we make our dataset tidy is by following three interrelated rules. 
+# Each variable must have its own column.
+# Each observation must have its own row.
+# Each value must have its own cell.
+
+# %>% is a pipe. It takes the data (left of the pipe) and applies the function (right of pipe)
+
+library(tidyr)
+library(magrittr)
+
+```{r}
+# Compute rate per 10,000
+table1 %>% 
+  mutate(rate = cases / population * 10000)
+#> # A tibble: 6 × 5
+#>   country      year  cases population  rate
+#>   <chr>       <int>  <int>      <int> <dbl>
+#> 1 Afghanistan  1999    745   19987071 0.373
+#> 2 Afghanistan  2000   2666   20595360 1.29 
+#> 3 Brazil       1999  37737  172006362 2.19 
+#> 4 Brazil       2000  80488  174504898 5.61 
+#> 5 China        1999 212258 1272915272 1.67 
+#> 6 China        2000 213766 1280428583 1.67
+
+# Compute cases per year
+table1 %>% 
+  count(year, wt = cases)
+#> # A tibble: 2 × 2
+#>    year      n
+#>   <int>  <int>
+#> 1  1999 250740
+#> 2  2000 296920
+
+# Visualise changes over time
+library(ggplot2)
+ggplot(table1, aes(year, cases)) + 
+  geom_line(aes(group = country), colour = "grey50") + 
+  geom_point(aes(colour = country))
+
+```
+
+table1
+#> # A tibble: 6 × 4
+#>   country      year  cases population
+#>   <chr>       <int>  <int>      <int>
+#> 1 Afghanistan  1999    745   19987071
+#> 2 Afghanistan  2000   2666   20595360
+#> 3 Brazil       1999  37737  172006362
+#> 4 Brazil       2000  80488  174504898
+#> 5 China        1999 212258 1272915272
+#> 6 China        2000 213766 1280428583
+table2
+#> # A tibble: 12 × 4
+#>   country      year type           count
+#>   <chr>       <int> <chr>          <int>
+#> 1 Afghanistan  1999 cases            745
+#> 2 Afghanistan  1999 population  19987071
+#> 3 Afghanistan  2000 cases           2666
+#> 4 Afghanistan  2000 population  20595360
+#> 5 Brazil       1999 cases          37737
+#> 6 Brazil       1999 population 172006362
+#> # ... with 6 more rows
+table3
+#> # A tibble: 6 × 3
+#>   country      year rate             
+#> * <chr>       <int> <chr>            
+#> 1 Afghanistan  1999 745/19987071     
+#> 2 Afghanistan  2000 2666/20595360    
+#> 3 Brazil       1999 37737/172006362  
+#> 4 Brazil       2000 80488/174504898  
+#> 5 China        1999 212258/1272915272
+#> 6 China        2000 213766/1280428583
+
+1. Table Descriptions
+
+Table1
+
+Columns:
+
+country: The name of the country.
+year: The year the data were collected.
+cases: The number of TB cases reported in that year.
+population: The population of the country in that year.
+Observations: Each row in Table1 represents the TB cases and population for a specific country in a specific year.
+
+Table2
+
+Columns:
+
+country: The name of the country.
+year: The year the data were collected.
+type: The type of data, either "cases" of TB or "population".
+count: The numerical count corresponding to the type (either cases or population).
+Observations: Each row in Table2 represents either the number of TB cases or the population of a specific country in a specific year. Each country and year combination appears twice, once with a case count and once with a population count.
+
+Table3
+
+Columns:
+
+country: The name of the country.
+year: The year the data were collected.
+rate: The rate of TB cases per population, expressed as a string fraction ("cases/population").
+Observations: Each row in Table3 represents the TB rate for a specific country in a specific year, though the rate is expressed as an unresolved fraction rather than a numerical value.
+
+
+
+2. Extract the number of TB cases per country per year:
+
+For table2, you would filter the rows where type == "cases".
+
+Extract the matching population per country per year:
+
+Similarly, for table2, filter the rows where type == "population".
+
+Divide cases by population, and multiply by 10,000:
+
+You would need to ensure that you match cases with the correct population for the same country and year. In table2, this might involve reshaping the data or performing a join so each row contains both case and population data for the same country and year.
+
+Calculate the rate using the formula (cases/population) * 10000 to express the rate per 10,000 people.
+
+Store back in the appropriate place:
+
+For table2, you might store this in a new column in a transformed table that now includes a rate column alongside country and year.
+
+For table3, you would replace the rate column values with these newly calculated rates, converting the string representations into actual numerical values.
+
+# 4.5.1 
+
+
+```{r}
+billboard |> 
+  pivot_longer(
+    cols = starts_with("wk"), 
+    names_to = "week", 
+    values_to = "rank"
+  )
+```
+
+# 4.5.2 Pivoting longer
+
+```{r}
+df <- tribble(
+  ~id,  ~bp1, ~bp2,
+   "A",  100,  120,
+   "B",  140,  115,
+   "C",  120,  125
+)
+```
+```{r}
+df |> 
+  pivot_longer(
+    cols = bp1:bp2,
+    names_to = "measurement",
+    values_to = "value"
+  )
+```
+
+# 4.5.3 Widening datasets
+
+table2
+
+```{r}
+cms_patient_experience |> 
+  distinct(measure_cd, measure_title)
+```
+
+```{r}
+cms_patient_experience |> 
+  pivot_wider(
+    names_from = measure_cd,
+    values_from = prf_rate
+  )
+```
+
+# telling pivot_wider() which column or columns have values that uniquely identify each row
+
+```{r}
+cms_patient_experience |> 
+  pivot_wider(
+    id_cols = starts_with("org"),
+    names_from = measure_cd,
+    values_from = prf_rate
+  )
+```
+
+# 4.5.4 Pivoting wider
+
+```{r}
+df <- tribble(
+  ~id, ~measurement, ~value,
+  "A",        "bp1",    100,
+  "B",        "bp1",    140,
+  "B",        "bp2",    115, 
+  "A",        "bp2",    120,
+  "A",        "bp3",    105
+)
+```
+
+```{r}
+df |> 
+  pivot_wider(
+    names_from = measurement,
+    values_from = value
+  )
+```
+
+```{r}
+df |> 
+  distinct(measurement) |> 
+  pull()
+```
+```{r}
+df |> 
+  select(-measurement, -value) |> 
+  distinct()
+```
+```{r}
+df |> 
+  select(-measurement, -value) |> 
+  distinct() |> 
+  mutate(x = NA, y = NA, z = NA)
+```
+
+# 4.5.5 Exercises
+
+# Why are pivot_longer() and pivot_wider() not perfectly symmetrical? Carefully consider the following example. 
+
+# ^^^ pivot_longer() and pivot_wider() are not perfectly symmetrical because they handle data types differently during transformation. Specifically, pivot_wider() may convert data values into column names, which are always treated as strings. When converting back with pivot_longer(), without specifying data types, these names would remain as strings, potentially altering the data type from the original.
+
+```{r}
+stocks <- tibble(
+  year   = c(2015, 2015, 2016, 2016),
+  half  = c(   1,    2,     1,    2),
+  return = c(1.88, 0.59, 0.92, 0.17)
+)
+
+stocks %>% 
+  pivot_wider(names_from = year, values_from = return) %>% 
+  pivot_longer(`2015`:`2016`, names_to = "year", values_to = "return")
+```
+# (Hint: look at the variable types and think about column names) pivot_longer() has a names_ptypes argument, e.g.  names_ptypes = list(year = double()). What does it do?
+
+# The names_ptypes argument in pivot_longer() allows you to specify the data types for newly created columns during the transformation. This ensures that the columns' data types are appropriate and consistent, particularly when column names from pivot_wider() need to be converted back into numeric or other specific data types.
+
+# 2. Why does this code fail?
+
+```{r}
+table4a %>% 
+  pivot_longer(c(1999, 2000), names_to = "year", values_to = "cases")
+```
+
+# Incorrect Column Names: The columns "1999" and "2000" are likely not existing as they are stated in the function. In R, column names should be referenced as strings. Therefore, they should be enclosed in quotes to ensure they are recognized as character strings.
+
+# Column Existence: The error indicates that the specified columns "1999" and "2000" do not exist in table4a. This implies that the actual column names might differ or are not present as numeric literals.
+
+# Literal Interpretation: When numbers are used without quotes in R, they are interpreted literally as numbers. Since column names are strings, failing to quote "1999" and "2000" leads to a lookup for non-existent numeric columns, hence the failure.
+
+# Corrected code
+
+```{r}
+table4a %>% 
+  pivot_longer(cols = c("1999", "2000"), names_to = "year", values_to = "cases")
+
+```
+
+# 3. Consider the sample tibble below. Do you need to make it wider or longer? What are the variables?
+
+```{r}
+preg <- tribble(
+  ~pregnant, ~male, ~female,
+  "yes",     NA,    10,
+  "no",      20,    12
+)
+```
+
+# use pivot_longer() to create a long table. The variables in this data are: sex (“female”, “male”), pregnant (“yes”, “no”), count, which is a non-negative integer representing the number of observations.
+
+```{r}
+preg_tidy <- preg %>%
+  pivot_longer(c(male, female), names_to = "sex", values_to = "count")
+preg_tidy
+```
+# Remove the (male, pregnant) row with a missing value to simplify the tidied data frame.
+
+```{r}
+preg_tidy2 <- preg %>%
+  pivot_longer(c(male, female), names_to = "sex", values_to = "count", values_drop_na = TRUE)
+preg_tidy2
+```
+
+# If a variable takes two values, like pregnant and sex, it is often preferable to store them as logical vectors. This makes the meaning of the variable self-documenting.
+
+```{r}
+preg_tidy3 <- preg_tidy2 %>%
+  mutate(
+    female = sex == "female",
+    pregnant = pregnant == "yes"
+  ) %>%
+  select(female, pregnant, count)
+preg_tidy3
+```
+
+# Compare the filter() calls to select non-pregnant females from preg_tidy2 and preg_tidy.
+
+```{r}
+filter(preg_tidy2, sex == "female", pregnant == "no")
+
+filter(preg_tidy3, female, !pregnant)
+```
+
+# 4.5.6 Separating and uniting data tables
+
+table3
+```{r}
+table3 %>% 
+  separate(rate, into = c("cases", "population"))
+```
+
+```{r}
+table3 %>% 
+  separate(rate, into = c("cases", "population"), sep = "/")
+```
+
+```{r}
+table3 %>% 
+  separate(rate, into = c("cases", "population"), convert = TRUE)
+```
+
+```{r}
+table3 %>% 
+  separate(year, into = c("century", "year"), sep = 2)
+```
+
+# To perform the inverse of separate() we will use unite() to combine multiple columns into a single column. In the example below for table5, we use unite() to rejoin century and year columns. unite() takes a data frame, the name of the new variable and a set of columns to combine using dplyr::select(). 
+
+```{r}
+table5 %>% 
+  unite(new, century, year, sep = "")
+```
+
+# 4.6 Handling missing values
+
+# 4.6.1 Explicit missing values
+# An NA (explicit absence) indicates the presence of absent data, and a blank cell just indicates the absence of data (implicit absence). 
+# A common use for missing values is as a data entry convenience. When data is entered by hand, missing values sometimes indicate that the value in the previous row has been repeated (or carried forward):
+
+```{r}
+treatment <- tribble(
+  ~person,           ~treatment, ~response,
+  "Derrick Whitmore", 1,         7,
+  NA,                 2,         10,
+  NA,                 3,         NA,
+  "Katherine Burke",  1,         4
+)
+# You can fill in these missing values with tidyr::fill(). It works like select(), taking a set of columns:
+treatment |>
+  fill(everything())
+```
+# 4.6.2 Fixed values
+
+```{r}
+x <- c(1, 4, 5, 7, NA)
+coalesce(x, 0)
+```
+# Sometimes, specific values like 99 or -999 are used to represent missing data due to limitations of older software. You can address this by converting these values to NA with dplyr::na_if().
+
+```{r}
+x <- c(1, 4, 5, 7, -99)
+na_if(x, -99)
+```
+# 4.6.3 NaN
+
+
+
+
+
+
+
+
