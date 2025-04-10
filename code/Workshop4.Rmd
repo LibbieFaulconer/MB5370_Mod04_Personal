@@ -37,17 +37,137 @@ ggplot(dat, aes(x = latitude, y = richness_raw)) +
 # visualizing richness in a non-spatial way with latitude on the x-axis and richness on the y-axis. 
 
 ```
-5.8
+# 5.8
 # st_as_sf converts different data types to simple features. 
 dat is our original data. 
 # coords gives the names of the columns that relate to the spatial coordinates (in order of X coordinate followed by Y coordinate).
 # crs stands for coordinate reference system which we will discuss next.
 
+# Turning data into a ‘simple features collection’.(sf)
+
 
 ```{r}
+install.packages("sf")
+library("sf")
+```
+```{r}
+str(dat)
+head(dat)
+
 sdat <- st_as_sf(dat, coords = c("longitude", "latitude"), #turn our data into a ‘simple features collection’.
                  crs = 4326)
 ```
+
+# 5.9 Coordinate reference systems
+#coordinate reference systems are required for 2D mapping to compensate for the lumpy, spherical (3D) nature of the earth.
+
+
+```{r}
+crs4326 <- st_crs(4326)
+crs4326 # look at the whole CRS
+crs4326$Name ## pull out just the name of the crs
+crs4326$wkt # crs in well-known text format
+```
+
+# 2D mapping^
+
+5.10 Feature collection (points)
+
+
+```{r}
+sdat #sf is that because the data is basically a dataframe with a geometry, we can use all the operations that work on dataframes on sf simple features collections.
+
+```
+
+
+# 5.11 Cartography
+
+```{r}
+plot(sdat["richness_raw"])
+```
+
+```{r}
+plot(sdat)
+```
+
+
+```{r}
+plot(sdat["sample_time_utc"])
+```
+
+# 5.12 Thematic maps for communication
+
+```{r}
+install.packages("tmap")
+```
+
+```{r}
+library(tmap)
+```
+
+```{r}
+#using tmap
+
+tm_shape(sdat) + 
+  tm_dots(col = "richness_raw")
+```
+
+```{r}
+tm_shape(sdat) + 
+  tm_symbols(col = "richness_raw")
+tmap_save()
+```
+```{r}
+# Assuming 'sdat' is your spatial data object and 'richness_raw' is a column in 'sdat'
+library(tmap)
+tm1 <- tm_shape(sdat) + 
+  tm_dots(col = "richness_raw")
+
+```
+
+```{r}
+tmap_save(tm1, filename = "Richness-map.png", 
+          width = 600, height = 600)
+```
+
+# 5.13 Mapping spatial polygons as layers
+
+# We can read shapefiles directly into R with the st_read command (which is like read_csv, but for spatial files)
+
+```{r}
+aus <- st_read("../data/data-for-course/spatial-data/Aussie/Aussie.shp")
+```
+
+```{r}
+shelf <- st_read("../data/data-for-course/spatial-data/aus_shelf/aus_shelf.shp")
+```
+
+```{r}
+aus
+```
+# 5.13.2 Mapping your polygons
+
+```{r}
+tm_shape(shelf) + 
+  tm_polygons()
+```
+
+```{r}
+tm_shape(shelf, bbox = sdat) + # bbox = sdat to expand the extent of the map so it depicts all of our copepod data points. 
+  tm_polygons() +
+  tm_shape(aus) + 
+  tm_polygons() + 
+  tm_shape(sdat) + 
+  tm_dots()
+```
+# 5.14 Exploring t_map
+
+```{r}
+install.packages("tmap", dependencies = TRUE)
+```
+
+
+
 
 
 
