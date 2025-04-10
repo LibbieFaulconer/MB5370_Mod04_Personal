@@ -15,3 +15,41 @@ knitr::opts_chunk$set(echo = TRUE)
 library(readr)
 ```
 
+
+```{r}
+#load the copepod data into R studio
+library(readr)
+dat <- read_csv("../data/data-for-course/copepods_raw.csv")
+dat
+```
+
+```{r}
+library(ggplot2) #  plotting the coordinates for the samples (segments of the CPR silks)
+ggplot(dat) + 
+  aes(x = longitude, y = latitude, color = richness_raw) +
+  geom_point()
+```
+
+```{r}
+ggplot(dat, aes(x = latitude, y = richness_raw)) + 
+  stat_smooth() + 
+  geom_point()
+# visualizing richness in a non-spatial way with latitude on the x-axis and richness on the y-axis. 
+
+```
+5.8
+# st_as_sf converts different data types to simple features. 
+dat is our original data. 
+# coords gives the names of the columns that relate to the spatial coordinates (in order of X coordinate followed by Y coordinate).
+# crs stands for coordinate reference system which we will discuss next.
+
+
+```{r}
+sdat <- st_as_sf(dat, coords = c("longitude", "latitude"), #turn our data into a ‘simple features collection’.
+                 crs = 4326)
+```
+
+
+
+
+
