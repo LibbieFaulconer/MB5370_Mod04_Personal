@@ -16,6 +16,10 @@ QFISH ASSIGNMENT
 
 # "How does the number of issued licenses affect the total tonnage produced over the years?"
 
+install.packages("readr")
+library(readr)
+
+install.packages(tidyverse)
 library(tidyverse)
 
 ```{r}
@@ -67,7 +71,7 @@ ggsave("scatter_plot_with_legend_right.pdf", plot = plot, width = 10, height = 6
 
 
 
-
+_______________________________________________
 
 # Workshop 3 - Data wrangling in R
 
@@ -445,7 +449,53 @@ coalesce(x, 0)
 x <- c(1, 4, 5, 7, -99)
 na_if(x, -99)
 ```
-# 4.6.3 NaN
+# 4.6.3 NaN (Not a Number)
+
+```{r}
+x <- c(NA, NaN)
+x * 10
+#> [1]  NA NaN
+x == 1
+#> [1] NA NA
+is.na(x)
+#> [1] TRUE TRUE
+```
+
+4.6.4 Implicit missing values
+
+```{r}
+stocks <- tibble(
+  year  = c(2020, 2020, 2020, 2020, 2021, 2021, 2021),
+  qtr   = c(   1,    2,    3,    4,    2,    3,    4),
+  price = c(1.88, 0.59, 0.35,   NA, 0.92, 0.17, 2.66)
+)
+```
+
+```{r}
+stocks |>
+  pivot_wider(
+    names_from = qtr, 
+    values_from = price
+  )
+```
+
+4.7 How can I import data into R?
+# The most common file type for representing tabular data is a .csv or ‘comma-separated values.’
+# The first row or “header row” gives the column names
+The following six rows provide the data. 
+# best practice to code the loading of your data into your scripts, rather than using the import buttons in RStudio. This promotes reproducibility and can help when you share your code with other.
+
+
+4.7.3 Exercises
+
+```{r}
+read_csv("a,b\n1,2,3\n4,5,6") # There are more values in the rows than there are headers. The header has two columns (a and b), but the rows have three values (1,2,3 and 4,5,6).
+read_csv("a,b,c\n1,2\n1,2,3,4") # The number of values in each row is inconsistent. The first data row has two values, missing one for the third column, and the second data row has an extra value.
+read_csv("a,b\n\"1") # The value "1 has an opening quotation mark without a matching closing quotation mark, making it unclear how to correctly parse the value.
+read_csv("a,b\n1,2\na,b") # The data types under the headers are inconsistent; the headers imply numeric data, but 'a' and 'b' are non-numeric.
+read_csv("a;b\n1;3") # The delimiter used in the file is a semicolon (;) rather than a comma, which is the default expected by read_csv.
+```
+
 
 
 

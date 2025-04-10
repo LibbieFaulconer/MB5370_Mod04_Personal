@@ -1,0 +1,82 @@
+---
+title: "QFISH Assi
+gnment"
+author: "Libbie"
+date: "2025-04-09"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+QFISH ASSIGNMENT
+
+# 3.10 Assignment: End-to-end data analysis in R
+# QFISH
+
+# "How does the number of issued licenses affect the total tonnage produced over the years?"
+
+```{r}
+library(tidyverse)
+```
+
+
+```{r}
+getwd()
+data <- read_csv("../data/QFISH_data.csv")
+```
+
+```{r}
+# Prepare the data
+data$Tonnes <- as.numeric(gsub(",", "", data$Tonnes))  # Ensure Tonnes is numeric, remove any commas
+data$Licences <- as.integer(data$Licences)  # Ensure Licences is integer
+
+# Define threshold to identify and remove outliers
+outlier_threshold <- 200000  # Example threshold
+data <- data[data$Tonnes <= outlier_threshold, ]
+
+# Generate the plot without the outlier and with a legend on the right
+plot <- ggplot(data, aes(x = Licences, y = Tonnes)) +
+  geom_jitter(aes(color = "Data Points"), alpha = 0.6, size = 2, width = 10, height = 0) +  # Adding jitter to reduce overlap
+  geom_smooth(aes(color = "Trend Line"), method = "gam", se = FALSE) +  # Add a linear trend line without confidence interval
+  scale_y_log10() +  # Applying log transformation to y-axis to handle large range
+  scale_color_manual(values = c("Data Points" = "blue", "Trend Line" = "red")) +  # Define custom colors for the legend
+  labs(title = "Relationship Between Number of Licenses and Total Tonnes Produced",
+       x = "Number of Licenses",
+       y = "Total Tonnes (Log Scale)",
+       color = "Legend Elements") +  # Adding legend title
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5),  # Center the plot title
+        plot.subtitle = element_text(hjust = 0.5),  # Center the subtitle
+        legend.position = "right")  # Position the legend on the right
+
+# Display the plot
+print(plot)
+
+# Save the plot to a file
+ggsave("scatter_plot_with_legend_right.pdf", plot = plot, width = 10, height = 6, dpi = 300)
+
+
+```
+
+# PLOT ANALYSIS
+
+# The scatter plot reveals a positive correlation between the number of licenses issued (Licences) and the total tonnage produced (Tonnes), indicating that generally, as the number of licenses increases, so does the tonnage produced. However, the significant variability among data points suggests that other factors besides the number of licenses influence the tonnage. This variability could reflect differences in fishing efficiency, technology, regulatory changes, or environmental conditions.
+
+# Notably, most data points are clustered at lower license counts, suggesting a concentration of operations within this range possibly due to regulatory or economic constraints. At higher license counts, the data points spread out, indicating that fewer operators reach this scale, and those who do may not consistently achieve higher yields. This spread could be partially due to the ecological limits such as overfishing, where increased effort does not correspond to proportionate increases in yield due to depleted fish stocks.
+
+# The presence of outliers—particularly at higher license numbers with unusually high tonnage—suggests exceptional cases that could skew overall analysis. These outliers may represent instances of extremely efficient operations or reporting errors and should be investigated to ensure they do not mislead policy recommendations or economic analysis.
+
+# This analysis underscores the need for careful management of fishing licenses and monitoring of fishing practices to ensure sustainability, particularly in light of signs that overfishing may be affecting overall productivity. Further research should also explore the specific conditions and practices under these licenses to better understand the impacts on fish populations and marine ecosystems.
+
+
+
+
+
+
+
+
+
+
