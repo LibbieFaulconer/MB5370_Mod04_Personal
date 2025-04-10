@@ -1,0 +1,17 @@
+---
+title: "Workshop4.Rmd"
+author: "Libbie"
+date: "2025-04-10"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#load the copepod data into R studio
+
+```{r}
+library(readr)
+```
+
